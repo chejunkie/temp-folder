@@ -1,2 +1,2 @@
-# temp-folder
+# Temporary Folder
 Creates a temporary folder.
