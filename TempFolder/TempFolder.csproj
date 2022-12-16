@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>Brian Satola</Authors>
+    <Company>Brian Satola</Company>
+    <Copyright>2022</Copyright>
+    <PackageProjectUrl>https://github.com/chejunkie/temp-folder</PackageProjectUrl>
+    <PackageTags>temp;folder;directory;IO</PackageTags>
+    <PackageReleaseNotes>This is the initial release</PackageReleaseNotes>
+    <RootNamespace>Helpers.IO.Folders</RootNamespace>
+    <PackageId>chejunkie.TempFolder</PackageId>
+    <PackageIconUrl>https://chejunkie.com/icon.svg</PackageIconUrl>
+    <Version>1.0.2</Version>
+    <Description>Temporary folders that automatically delete after use.</Description>
+  </PropertyGroup>
+
+</Project>
