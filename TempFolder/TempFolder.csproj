@@ -3,30 +3,32 @@
   <PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
 		<LangVersion>8.0</LangVersion>
-    <!--<ImplicitUsings>enable</ImplicitUsings>-->
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Brian Satola</Authors>
     <Company>Brian Satola</Company>
     <Copyright>2022</Copyright>
     <PackageProjectUrl>https://github.com/chejunkie/temp-folder</PackageProjectUrl>
-    <PackageTags>temp-folder;temp-directory;temp-dir;folder;directory;dir;temp;temporary;IO</PackageTags>
-    <PackageReleaseNotes>This is the initial release</PackageReleaseNotes>
-    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <PackageTags>temp-folder;temp-directory;temp-dir;folder;directory;dir;temp;temporary;IO;chejunkie</PackageTags>
+    <PackageReleaseNotes>Update assembly name to match package ID. Embedd readme and MIT license in package.</PackageReleaseNotes>
+    <RootNamespace>ChEJunkie.IO</RootNamespace>
     <PackageId>ChEJunkie.TempFolder</PackageId>
 		<PackageIcon>icon.png</PackageIcon>
-    <Version>1.0.0</Version>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+  	<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <Version>1.0.1</Version>
     <Description>Provides unique temporary folders that automatically delete after use (when the class is disposed). Folders are created in the user temp directory by default, but you can change this if needed. To ensure that the temporary folder is actually deleted on destroy, attributes are automatically cleared from contained files and subdirectories when necessary.</Description>
   </PropertyGroup>
 
   <PropertyGroup>
 	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	  <AssemblyName>ChEJunkie.TempFolder</AssemblyName>
   </PropertyGroup>
-		
+
 	<ItemGroup>
-	  <None Include="icon.png" Pack="true" Visible="false" PackagePath="" />
-		<None Include="..\README.md" Pack="true" Visible="false" PackagePath="\"/>
+	  <None Include="icon.png" Pack="true" Visible="false" PackagePath=""/>
+		<None Include="..\README.md" Pack="true" Visible="false" PackagePath=""/>
+			<None Include="..\LICENSE.txt" Pack="true" Visible="false" PackagePath=""/>
 	</ItemGroup>
 		
 </Project>
