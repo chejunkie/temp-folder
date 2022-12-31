@@ -17,8 +17,8 @@ public void Create_And_Destroy_Success()
         Debug.WriteLine($"FullName: {dir.FullName}"); // root + randomly generated name
         Assert.IsTrue(dir.Exists);
     }
-    Assert.IsFalse(dir.Exists);
     Debug.WriteLine($"Removed? {!dir.Exists}");
+    Assert.IsFalse(dir.Exists);
 }
 ```
 
