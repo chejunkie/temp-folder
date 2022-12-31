@@ -23,8 +23,8 @@ namespace TempFolderTests
             }
 
             // Assert
-            Assert.IsFalse(dir.Exists);
             Debug.WriteLine($"Removed? {!dir.Exists}");
+            Assert.IsFalse(dir.Exists);
         }
 
         [TestMethod]
