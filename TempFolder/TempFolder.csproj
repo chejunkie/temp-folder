@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+		<TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+		<LangVersion>8.0</LangVersion>
+    <!--<ImplicitUsings>enable</ImplicitUsings>-->
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -10,13 +11,21 @@
     <Company>Brian Satola</Company>
     <Copyright>2022</Copyright>
     <PackageProjectUrl>https://github.com/chejunkie/temp-folder</PackageProjectUrl>
-    <PackageTags>temp;folder;directory;IO</PackageTags>
+    <PackageTags>temp-folder;temp-directory;temp-dir;folder;directory;dir;temp;temporary;IO</PackageTags>
     <PackageReleaseNotes>This is the initial release</PackageReleaseNotes>
-    <RootNamespace>Helpers.IO.Folders</RootNamespace>
-    <PackageId>chejunkie.TempFolder</PackageId>
-    <PackageIconUrl>https://chejunkie.com/icon.svg</PackageIconUrl>
-    <Version>1.0.2</Version>
-    <Description>Temporary folders that automatically delete after use.</Description>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <PackageId>ChEJunkie.TempFolder</PackageId>
+		<PackageIcon>icon.png</PackageIcon>
+    <Version>1.0.0</Version>
+    <Description>Provides unique temporary folders that automatically delete after use (when the class is disposed). Folders are created in the user temp directory by default, but you can change this if needed. To ensure that the temporary folder is actually deleted on destroy, attributes are automatically cleared from contained files and subdirectories when necessary.</Description>
   </PropertyGroup>
 
+  <PropertyGroup>
+	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="icon.png" Pack="true" Visible="false" PackagePath="" />
+	</ItemGroup>
+		
 </Project>

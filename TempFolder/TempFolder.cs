@@ -1,13 +1,15 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 
-namespace Helpers.IO.Folders
+namespace ChEJunkie.IO
 {
+    /// <summary>Class TempFolder creates a temporary folder in user temp directory, or specified path.</summary>
     public class TempFolder : IDisposable
     {
         /// <summary>Initializes a new instance of the <see cref="T:TempFolder.TempFolder" /> class.</summary>
-        /// <param name="root">The root.</param>
-        /// <param name="name">The name.</param>
         /// <remarks>The local temp (user) directory is used as the root, and the calling assembly as the folder name.</remarks>
         public TempFolder() : this("", "")
         { }
@@ -34,7 +36,7 @@ namespace Helpers.IO.Folders
                 {
                     callerName = Path.GetFileNameWithoutExtension(Assembly.GetCallingAssembly().ManifestModule.Name);
                 }
-                root= Path.Combine(root, callerName);
+                root = Path.Combine(root, callerName);
             }
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -42,8 +44,6 @@ namespace Helpers.IO.Folders
             }
             Root = root;
             FullName = Path.Combine(Root, name);
-
-            Clean(Root);
             Create();
         }
 
@@ -73,7 +73,7 @@ namespace Helpers.IO.Folders
         }
 
         /// <summary>Clears the attributes of all files and subdirectories.</summary>
-        /// <param name="path">The path.</param>
+        /// <param name="dirPath">The directory path.</param>
         private static void ClearAttributes(
             string dirPath)
         {
@@ -97,7 +97,7 @@ namespace Helpers.IO.Folders
 
         /// <summary>Cleans the specified folder directory.</summary>
         /// <param name="fullName">The full name.</param>
-        private void Clean(
+        private static void Clean(
             string fullName)
         {
             try
@@ -113,10 +113,11 @@ namespace Helpers.IO.Folders
                 ClearDirectory(fullName);
             }
         }
+
         /// <summary>Clears the directory of all files and subdirectories.</summary>
         /// <param name="dirPath">The dir path.</param>
         /// <remarks>Deletes them.</remarks>
-        private void ClearDirectory(
+        private static void ClearDirectory(
             string dirPath)
         {
             if (Directory.Exists(dirPath))
@@ -133,7 +134,10 @@ namespace Helpers.IO.Folders
                 {
                     Directory.Delete(dirPath, true);
                 }
-                catch (IOException) { }
+                catch (IOException)
+                {
+                    return;
+                }
             }
         }
 
@@ -142,13 +146,18 @@ namespace Helpers.IO.Folders
         {
             try
             {
-                if (!Directory.Exists(FullName))
+                if (Directory.Exists(FullName))
+                {
+                    Clean(FullName);
+                }
+                else
                 {
                     Directory.CreateDirectory(FullName);
                 }
             }
             catch (IOException)
             {
+                return;
             }
         }
 
@@ -189,13 +198,13 @@ namespace Helpers.IO.Folders
         /// Throws an exception if something is tried with an already disposed object.
         /// </summary>
         /// <remarks>
-        /// All public methods should call this first.
+        /// Public methods should call this first to make sure that the object is not already disposed.
         /// </remarks>
         private void ThrowIfDisposed()
         {
             if (Disposed)
             {
-                throw new ObjectDisposedException(this.GetType().Name);
+                throw new ObjectDisposedException($"{ this.GetType().Name }, { FullName }");
             }
         }
     }

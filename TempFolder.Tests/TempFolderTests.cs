@@ -1,6 +1,10 @@
+using ChEJunkie.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Diagnostics;
+using System.IO;
 
-namespace Helpers.IO.Folders.Tests
+namespace TempFolderTests
 {
     [TestClass]
     public class TempFolderTests
@@ -26,14 +30,14 @@ namespace Helpers.IO.Folders.Tests
             string name = "blah-blah-blah";
             if (!Directory.Exists(root))
             {
-                Directory.CreateDirectory(root);    
+                Directory.CreateDirectory(root);
             }
             else
             {
                 throw new AssertFailedException(
                     "User root already exists. " +
                     "Kick-out to prevent potential data loss situation " +
-                    "(i.e., the test attempts to delete the root at the end).");
+                    "(i.e., the test attempts to cleanup and delete the root at the end).");
             }
             TempFolder dir;
             using (dir = new TempFolder(root, name))
@@ -47,7 +51,7 @@ namespace Helpers.IO.Folders.Tests
             {
                 Directory.Delete(dir.Root);
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 Debug.WriteLine("*** UNABLE TO DELETE ROOT ***");
             }
