@@ -23,7 +23,7 @@
   <PropertyGroup>
 	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-
+		
 	<ItemGroup>
 	  <None Include="icon.png" Pack="true" Visible="false" PackagePath="" />
 	</ItemGroup>
