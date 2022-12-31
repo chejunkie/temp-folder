@@ -13,8 +13,8 @@ public void Create_And_Destroy_Success()
     TempFolder dir;
     using (dir = new TempFolder())
     {
-        Debug.WriteLine($"Root: {dir.Root}");         // user temp + calling assembly name
-        Debug.WriteLine($"FullName: {dir.FullName}"); // randomly generated
+        Debug.WriteLine($"Root: {dir.Root}");         // user temp directory + calling assembly name
+        Debug.WriteLine($"FullName: {dir.FullName}"); // root + randomly generated name
         Assert.IsTrue(dir.Exists);
     }
     Assert.IsFalse(dir.Exists);
