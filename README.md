@@ -22,4 +22,4 @@ public void Create_And_Destroy_Success()
 }
 ```
 
-This behavior can be overriden by using the overload to explicitly define the root and name. If any input is invalid, the class automatically reverts to the default value for the field.
+If you choose, you can explicitaly define the root and temporary folder name in the constructor overload.
