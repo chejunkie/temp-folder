@@ -4,7 +4,7 @@
 
 Provides unique temporary folders that automatically delete after use (when the class is disposed). To ensure that the temporary folder is actually deleted on destroy, attributes are automatically cleared from contained files and subdirectories when necessary.
 
-The default constructor places the temporary folder in the user temp directory under a folder with the name of the calling assembly. Use `Root` and `FullName` properties to view the automatic definitions. Since the temporary folder implements `IDispatch` it is easiest to implment with a using statement:
+The default constructor places the temporary folder in the user temp directory under a folder with the name of the calling assembly. Use `Root` and `FullName` properties to view the automatic definitions. Since the temporary folder implements `IDisposable` it is easiest to implment with a using statement:
 
 ```csharp
 [TestMethod]
