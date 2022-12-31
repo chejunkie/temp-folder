@@ -1,6 +1,6 @@
 # Temporary Folder
 
-[![NuGet version (TempFolder)](https://img.shields.io/nuget/v/TempFolder.svg?style=flat-square)](https://www.nuget.org/packages/TempFolder/)
+[![NuGet version (ChEJunkie.TempFolder)](https://img.shields.io/nuget/v/ChEJunkie.TempFolder.svg?style=flat-square)](https://www.nuget.org/packages/ChEJunkie.TempFolder/)
 
 Provides unique temporary folders that automatically delete after use (when the class is disposed). To ensure that the temporary folder is actually deleted on destroy, attributes are automatically cleared from contained files and subdirectories when necessary.
 
