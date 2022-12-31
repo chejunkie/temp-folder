@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace ChEJunkie.IO
 {
@@ -38,6 +39,11 @@ namespace ChEJunkie.IO
                 }
                 root = Path.Combine(root, callerName);
             }
+
+            var regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            var r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
+            name = r.Replace(name, "");
+
             if (string.IsNullOrWhiteSpace(name))
             {
                 name = Path.GetFileNameWithoutExtension(Path.GetRandomFileName());
