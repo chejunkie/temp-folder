@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -11,7 +14,7 @@ public class TempFolder : IDisposable
 {
     private const string DefaultName = "";
     private const string DefaultRoot = "";
-
+        { }
     private bool _disposed;
 
     /// <summary>
@@ -37,6 +40,11 @@ public class TempFolder : IDisposable
         FullName = Path.Combine(Root, validName);
         Create();
     }
+            FullName = Path.Combine(Root, name);
+
+            Clean(Root);
+            Create();
+        }
 
     /// <summary>
     /// Gets a value indicating whether the temporary folder exists.
@@ -57,11 +65,6 @@ public class TempFolder : IDisposable
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
     public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
     /// <summary>
     /// Releases the unmanaged and optionally managed resources.
     /// </summary>
@@ -77,11 +80,11 @@ public class TempFolder : IDisposable
             {
                 Clean(FullName);
             }
-
-            _disposed = true;
-        }
-    }
-
+                string[] subDirs = Directory.GetDirectories(dirPath);
+                foreach (string dir in subDirs)
+                {
+                    ClearAttributes(dir);
+                }
     private static void Clean(
         string path)
     {
@@ -103,11 +106,11 @@ public class TempFolder : IDisposable
         if (Directory.Exists(path))
         {
             File.SetAttributes(path, FileAttributes.Normal);
-
-            foreach (var dir in Directory.GetDirectories(path))
             {
-                ClearAttributes(dir);
-            }
+                DirectoryInfo directory = new DirectoryInfo(dirPath);
+
+                directory.EnumerateFiles()
+                    .ToList().ForEach(f => f.Delete());
 
             foreach (var file in Directory.GetFiles(path))
             {
@@ -115,15 +118,15 @@ public class TempFolder : IDisposable
             }
         }
     }
+                    Directory.Delete(dirPath, true);
+                }
+                catch (IOException) { }
+            }
+        }
 
     private static void DeleteDirectoryContents(
         string path)
     {
-        if (Directory.Exists(path))
-        {
-            var directory = new DirectoryInfo(path);
-            foreach (var file in directory.EnumerateFiles())
-            {
                 file.Delete();
             }
 
@@ -143,6 +146,11 @@ public class TempFolder : IDisposable
 
         return string.IsNullOrWhiteSpace(name) ? Path.GetFileNameWithoutExtension(Path.GetRandomFileName()) : name;
     }
+            }
+            catch (IOException)
+            {
+            }
+        }
 
     private static string GetCallerAssemblyName()
     {
@@ -172,11 +180,6 @@ public class TempFolder : IDisposable
             Clean(FullName);
         }
         else
-        {
-            Directory.CreateDirectory(FullName);
-        }
-    }
-
     private static string DetermineRootPath(
         string root)
     {
@@ -186,6 +189,11 @@ public class TempFolder : IDisposable
 
             var callerName = GetCallerAssemblyName();
             root = Path.Combine(root, callerName);
+        {
+            if (Disposed)
+            {
+                throw new ObjectDisposedException(this.GetType().Name);
+            }
         }
 
         return root;
