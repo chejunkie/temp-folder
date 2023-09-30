@@ -1,15 +1,14 @@
 using ChEJunkie.Utilities.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
 using System.IO;
+using Xunit;
 
-namespace Helpers.IO.Folders.Tests
+namespace CheJunkie.Utilities.IO.Tests
 {
-    [TestClass]
     public class TempFolderTests
     {
-        [TestMethod]
+        [Fact]
         public void Create_And_Destroy_Success()
         {
             TempFolder dir;
@@ -17,13 +16,13 @@ namespace Helpers.IO.Folders.Tests
             {
                 Debug.WriteLine($"Root: {dir.Root}");
                 Debug.WriteLine($"FullName: {dir.FullName}");
-                Assert.IsTrue(dir.Exists);
+                Assert.True(dir.Exists);
             }
-            Assert.IsFalse(dir.Exists);
+            Assert.False(dir.Exists);
             Debug.WriteLine($"Removed? {!dir.Exists}");
         }
 
-        [TestMethod]
+        [Fact]
         public void Direct_Create_And_Destroy_Success()
         {
             string root = Path.Combine(Environment
@@ -33,28 +32,28 @@ namespace Helpers.IO.Folders.Tests
             const string name = "blah-blah-blah";
             if (!Directory.Exists(root))
             {
-                Directory.CreateDirectory(root);    
+                Directory.CreateDirectory(root);
             }
             else
             {
-                throw new AssertFailedException(
-                    "User root already exists. " +
-                    "Kick-out to prevent potential data loss situation " +
-                    "(i.e., the test attempts to delete the root at the end).");
+                // Replace AssertFailedException with Xunit's exception or assertion
+                Assert.True(false, "User root already exists. " +
+                                  "Kick-out to prevent potential data loss situation " +
+                                  "(i.e., the test attempts to delete the root at the end).");
             }
             TempFolder dir;
             using (dir = new TempFolder(root, name))
             {
                 Debug.WriteLine($"Root: {dir.Root}");
                 Debug.WriteLine($"FullName: {dir.FullName}");
-                Assert.IsTrue(dir.Exists);
+                Assert.True(dir.Exists);
             }
-            Assert.IsFalse(dir.Exists);
+            Assert.False(dir.Exists);
             try
             {
                 Directory.Delete(dir.Root);
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 Debug.WriteLine("*** UNABLE TO DELETE ROOT ***");
             }
