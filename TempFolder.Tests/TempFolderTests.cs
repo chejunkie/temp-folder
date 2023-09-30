@@ -7,7 +7,7 @@ using Xunit;
 namespace CheJunkie.Utilities.IO.Tests
 {
     public class TempFolderTests
-    {
+    { 
         [Fact]
         public void Create_And_Destroy_Success()
         {
