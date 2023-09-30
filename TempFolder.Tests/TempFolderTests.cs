@@ -1,4 +1,8 @@
+using ChEJunkie.Utilities.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Diagnostics;
+using System.IO;
 
 namespace Helpers.IO.Folders.Tests
 {
@@ -22,8 +26,11 @@ namespace Helpers.IO.Folders.Tests
         [TestMethod]
         public void Direct_Create_And_Destroy_Success()
         {
-            string root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "supercalifragilisticexpialidocious");
-            string name = "blah-blah-blah";
+            string root = Path.Combine(Environment
+                .GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+                    "supercalifragilisticexpialidocious"
+            );
+            const string name = "blah-blah-blah";
             if (!Directory.Exists(root))
             {
                 Directory.CreateDirectory(root);    

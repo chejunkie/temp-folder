@@ -1,202 +1,193 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
-namespace Helpers.IO.Folders
+namespace ChEJunkie.Utilities.IO;
+
+/// <summary>
+/// Represents a temporary folder that is automatically cleaned up upon disposal.
+/// </summary>
+public class TempFolder : IDisposable
 {
-    public class TempFolder : IDisposable
+    private const string DefaultName = "";
+    private const string DefaultRoot = "";
+
+    private bool _disposed;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TempFolder"/> class.
+    /// </summary>
+    public TempFolder() 
+        : this(DefaultRoot, DefaultName)
     {
-        /// <summary>Initializes a new instance of the <see cref="T:TempFolder.TempFolder" /> class.</summary>
-        /// <param name="root">The root.</param>
-        /// <param name="name">The name.</param>
-        /// <remarks>The local temp (user) directory is used as the root, and the calling assembly as the folder name.</remarks>
-        public TempFolder() : this("", "")
-        { }
+    }
 
-        /// <summary>Initializes a new instance of the <see cref="T:TempFolder.TempFolder" /> class.</summary>
-        /// <param name="root">The path where the temp folder is created.</param>
-        /// <param name="name">The name of the temp folder.</param>
-        /// <remarks>Defaults will be used for any null, empty or invalid inputs.</remarks>
-        public TempFolder(string root, string name)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TempFolder"/> class
+    /// with a specified root path and name.
+    /// </summary>
+    /// <param name="root">The root directory where the temporary folder should be created.</param>
+    /// <param name="name">The name of the temporary folder.</param>
+    public TempFolder(
+        string root, 
+        string name)
+    {
+        Root = DetermineRootPath(root);
+        var validName = EnsureValidName(name);
+        FullName = Path.Combine(Root, validName);
+        Create();
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the temporary folder exists.
+    /// </summary>
+    public bool Exists => Directory.Exists(FullName);
+
+    /// <summary>
+    /// Gets the full path of the temporary folder.
+    /// </summary>
+    public string FullName { get; }
+
+    /// <summary>
+    /// Gets the root directory for the temporary folder.
+    /// </summary>
+    public string Root { get; }
+
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Releases the unmanaged and optionally managed resources.
+    /// </summary>
+    /// <param name="disposing">True to release both managed 
+    /// and unmanaged resources; false to release only unmanaged resources.
+    /// </param>
+    protected virtual void Dispose(
+        bool disposing)
+    {
+        if (!_disposed)
         {
-            if (string.IsNullOrEmpty(root) || !Directory.Exists(root))
+            if (disposing)
             {
-                root = Path.GetTempPath();
-                string callerName;
-                try
-                {
-                    var currentAssembly = Assembly.GetExecutingAssembly();
-                    var callerAssemblies = new StackTrace().GetFrames()
-                                .Select(x => x.GetMethod().ReflectedType.Assembly).Distinct()
-                                .Where(x => x.GetReferencedAssemblies().Any(y => y.FullName == currentAssembly.FullName));
-                    callerName = Path.GetFileNameWithoutExtension(callerAssemblies.Last().ManifestModule.Name);
-                }
-                catch (Exception)
-                {
-                    callerName = Path.GetFileNameWithoutExtension(Assembly.GetCallingAssembly().ManifestModule.Name);
-                }
-                root= Path.Combine(root, callerName);
+                Clean(FullName);
             }
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                name = Path.GetFileNameWithoutExtension(Path.GetRandomFileName());
-            }
-            Root = root;
-            FullName = Path.Combine(Root, name);
 
-            Clean(Root);
-            Create();
+            _disposed = true;
         }
+    }
 
-        /// <summary>Gets a value indicating whether this <see cref="T:TempFolder.TempFolder" /> is exists.</summary>
-        /// <value>
-        ///   <c>true</c> if exists; otherwise, <c>false</c>.</value>
-        public bool Exists => Directory.Exists(FullName);
-
-        /// <summary>Gets full path of the directory.</summary>
-        /// <value>The full name.</value>
-        public string FullName { get; private set; }
-
-        /// <summary>Gets or sets a value indicating whether this <see cref="T:TempFolder.TempFolder" /> is disposed.</summary>
-        /// <value>
-        ///   <c>true</c> if disposed; otherwise, <c>false</c>.</value>
-        private bool Disposed { get; set; }
-
-        /// <summary>Gets the root path of the temporary folder.</summary>
-        /// <value>The root path.</value>
-        public string Root { get; private set; }
-
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
+    private static void Clean(
+        string path)
+    {
+        try
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
+            Directory.Delete(path, true);
         }
-
-        /// <summary>Clears the attributes of all files and subdirectories.</summary>
-        /// <param name="path">The path.</param>
-        private static void ClearAttributes(
-            string dirPath)
+        catch (IOException)
         {
-            if (Directory.Exists(dirPath))
-            {
-                File.SetAttributes(dirPath, FileAttributes.Normal);
-
-                string[] subDirs = Directory.GetDirectories(dirPath);
-                foreach (string dir in subDirs)
-                {
-                    ClearAttributes(dir);
-                }
-
-                string[] files = files = Directory.GetFiles(dirPath);
-                foreach (string file in files)
-                {
-                    File.SetAttributes(file, FileAttributes.Normal);
-                }
-            }
+            ClearAttributes(path);
+            DeleteDirectoryContents(path);
+            Directory.Delete(path, true);
         }
+    }
 
-        /// <summary>Cleans the specified folder directory.</summary>
-        /// <param name="fullName">The full name.</param>
-        private void Clean(
-            string fullName)
+    private static void ClearAttributes(
+        string path)
+    {
+        if (Directory.Exists(path))
         {
-            try
+            File.SetAttributes(path, FileAttributes.Normal);
+
+            foreach (var dir in Directory.GetDirectories(path))
             {
-                if (Directory.Exists(fullName))
-                {
-                    Directory.Delete(fullName, true);
-                }
+                ClearAttributes(dir);
             }
-            catch (IOException)
+
+            foreach (var file in Directory.GetFiles(path))
             {
-                ClearAttributes(fullName);
-                ClearDirectory(fullName);
+                File.SetAttributes(file, FileAttributes.Normal);
             }
         }
-        /// <summary>Clears the directory of all files and subdirectories.</summary>
-        /// <param name="dirPath">The dir path.</param>
-        /// <remarks>Deletes them.</remarks>
-        private void ClearDirectory(
-            string dirPath)
+    }
+
+    private static void DeleteDirectoryContents(
+        string path)
+    {
+        if (Directory.Exists(path))
         {
-            if (Directory.Exists(dirPath))
+            var directory = new DirectoryInfo(path);
+            foreach (var file in directory.EnumerateFiles())
             {
-                DirectoryInfo directory = new DirectoryInfo(dirPath);
+                file.Delete();
+            }
 
-                directory.EnumerateFiles()
-                    .ToList().ForEach(f => f.Delete());
-
-                directory.EnumerateDirectories()
-                    .ToList().ForEach(d => d.Delete(true));
-
-                try
-                {
-                    Directory.Delete(dirPath, true);
-                }
-                catch (IOException) { }
+            foreach (var dir in directory.EnumerateDirectories())
+            {
+                dir.Delete(true);
             }
         }
+    }
 
-        /// <summary>Creates the temp folder for this instance.</summary>
-        private void Create()
+    private static string EnsureValidName(
+        string name)
+    {
+        var invalidChars = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+        var r = new Regex($"[{Regex.Escape(invalidChars)}]");
+        name = r.Replace(name, "");
+
+        return string.IsNullOrWhiteSpace(name) ? Path.GetFileNameWithoutExtension(Path.GetRandomFileName()) : name;
+    }
+
+    private static string GetCallerAssemblyName()
+    {
+        try
         {
-            try
-            {
-                if (!Directory.Exists(FullName))
-                {
-                    Directory.CreateDirectory(FullName);
-                }
-            }
-            catch (IOException)
-            {
-            }
-        }
+            var currentAssembly = Assembly.GetExecutingAssembly();
 
-        /// <summary>
-        /// Releases managed and unmanaged resources.
-        /// </summary>
-        /// <remarks>
-        /// After disposing, no other object is referenced by it anymore.
-        /// </remarks>
-        private void Dispose(
-            bool disposing)
+            var callerAssemblies = new StackTrace().GetFrames()
+                        .Where(x => x.GetMethod() != null && x.GetMethod()!.ReflectedType != null)
+                        .Select(x => x.GetMethod()!.ReflectedType!.Assembly)
+                        .Distinct()
+                        .Where(x => x.GetReferencedAssemblies()
+                            .Any(y => y.FullName == currentAssembly.FullName));
+
+            return Path.GetFileNameWithoutExtension(callerAssemblies.Last().ManifestModule.Name);
+        }
+        catch
         {
-            if (!Disposed)
-            {
-                this.ReleaseUnmanagedResources();
-
-                if (disposing)
-                {
-                    this.ReleaseManagedResources();
-                }
-
-                Disposed = true;
-            }
+            return Path.GetFileNameWithoutExtension(Assembly.GetCallingAssembly().ManifestModule.Name);
         }
+    }
 
-        /// <summary>Releases the managed resources.</summary>
-        private void ReleaseManagedResources()
+    private void Create()
+    {
+        if (Directory.Exists(FullName))
         {
             Clean(FullName);
         }
-
-        /// <summary>Releases the unmanaged resources.</summary>
-        private void ReleaseUnmanagedResources()
+        else
         {
+            Directory.CreateDirectory(FullName);
+        }
+    }
+
+    private static string DetermineRootPath(
+        string root)
+    {
+        if (string.IsNullOrEmpty(root) || !Directory.Exists(root))
+        {
+            root = Path.GetTempPath();
+
+            var callerName = GetCallerAssemblyName();
+            root = Path.Combine(root, callerName);
         }
 
-        /// <summary>
-        /// Throws an exception if something is tried with an already disposed object.
-        /// </summary>
-        /// <remarks>
-        /// All public methods should call this first.
-        /// </remarks>
-        private void ThrowIfDisposed()
-        {
-            if (Disposed)
-            {
-                throw new ObjectDisposedException(this.GetType().Name);
-            }
-        }
+        return root;
     }
 }
